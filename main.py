@@ -71,7 +71,7 @@ try:
                         c_name = "[作者评论]"
                     else:
                         # 很久以前的一些评论可能网友名字没有链接, 用上面的正则匹配不到...
-                        c_name = re.compile("网友：[\S]*?").findall(t)[0][3:].replace("\n", "-").strip()
+                        c_name = re.compile("网友：[\S]*").findall(t)[0][3:].replace("\n", "-").strip()
 
                 uid = c_time + "_" + c_name
 
