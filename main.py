@@ -18,41 +18,53 @@ conn.commit()
 
 try:
     for i in range(1, 10000000):
-        r = None
-        logging.info("正在获取第" + str(i) + "页评论...")
-        # 尝试获取页面
-        while True:
-            try:
-                time.sleep(3)
-                r = requests.get("http://www.jjwxc.net/comment.php", params={
-                    "novelid": id,
-                    "page": i,
-                    # 如果只想要获取长评取消注释下面这行
-                    # "wonderful": 1
-                    # 如果只想要获取作者加精评论取消注释下面这行
-                    # "belike": 1
-                    # 如果只想要获取话题取消注释下面这行
-                    # "huati": 1
 
-                    # 以上三行可以自行注释或取消注释, 但一次最多取消注释一行
-                    # 默认全部注释即获取所有评论
-                }, timeout=15)
+        # 获取页面内容
+        for i2 in range(0, 3):
+            try:
+                r = None
+                logging.info("正在获取第" + str(i) + "页评论...")
+                # 尝试获取页面
+                while True:
+                    try:
+                        time.sleep(3)
+                        r = requests.get("http://www.jjwxc.net/comment.php", params={
+                            "novelid": id,
+                            "page": i,
+                            # 如果只想要获取长评取消注释下面这行
+                            # "wonderful": 1
+                            # 如果只想要获取作者加精评论取消注释下面这行
+                            # "belike": 1
+                            # 如果只想要获取话题取消注释下面这行
+                            # "huati": 1
+
+                            # 以上三行可以自行注释或取消注释, 但一次最多取消注释一行
+                            # 默认全部注释即获取所有评论
+                        }, timeout=15)
+                        break
+                    except Exception as e:
+                        logging.warning("网络连接出错: " + str(e))
+
+                # 使用 bs4 解析数据
+                soup = bs4.BeautifulSoup(r.content.decode("gbk", errors='ignore'), features="lxml")
+
+                # 使用正则匹配评论 div
+                comment_selector = re.compile("comment_[0-9]*")
+                comments = soup.find_all('div', id=comment_selector)
+
+                logging.info("成功抓取到" + str(len(comments)) + "条评论.")
+
+                if len(comments) == 0:
+                    raise Exception("没有更多数据.(数据抓取完成? ip 被封?)")
+
                 break
             except Exception as e:
-                logging.warning("网络连接出错: " + str(e))
+                logging.warning("第" + str(i) + "页未获取到内容, 30s后重试")
+                time.sleep(30)
+        else:
+            raise Exception("连续3次重试未获取到内容.")
 
-        # 使用 bs4 解析数据
-        soup = bs4.BeautifulSoup(r.content.decode("gbk", errors='ignore'), features="lxml")
-
-        # 使用正则匹配评论 div
-        comment_selector = re.compile("comment_[0-9]*")
-        comments = soup.find_all('div', id=comment_selector)
-
-        logging.info("成功抓取到" + str(len(comments)) + "条评论.")
-
-        if len(comments) == 0:
-            raise Exception("没有更多数据. 所有评论抓取完成. (也可能是该 ip 被封?)")
-
+        # 解析保存评论
         for c in comments:
             t = None
             try:
