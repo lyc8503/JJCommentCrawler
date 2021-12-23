@@ -74,7 +74,7 @@ def get_one_chapter_all(cid, cookies):
             for c in comments:
                 t = None
                 try:
-                    logging.info("获取的评论ID: " + c['id'][8:])
+                    logging.debug("获取的评论ID: " + c['id'][8:])
                     t = html2text.html2text(str(c))
 
                     time_re = re.compile("发表时间：[0-9\-\s:]*")
@@ -97,14 +97,14 @@ def get_one_chapter_all(cid, cookies):
                                    (uid + "_" + str(cid), t))
                     conn.commit()
 
-                    logging.info("评论 " + uid + " 保存成功.")
+                    logging.debug("评论 " + uid + " 保存成功.")
                 except sqlite3.IntegrityError as e:
                     logging.warning("评论保存失败. 可能是同一用户在1s内发送了两条评论或从晋江获取到的内容重复.")
                 except IndexError as e:
                     logging.warning("评论保存失败. 正则匹配出错: " + t)
 
     except Exception as e:
-        logging.warning("未知错误: " + str(e))
+        logging.warning("本章节获取结束: " + str(e))
         conn.commit()
         raise e
 
@@ -119,6 +119,7 @@ for i in range(int(ran.split('-')[0]), int(ran.split('-')[1]) + 1):
     except Exception as e:
         logging.error(e)
 
+logging.info("全部完成.")
 conn.commit()
 cursor.close()
 conn.close()
