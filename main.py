@@ -30,7 +30,7 @@ def get_one_chapter_all(cid, cookies):
                     while True:
                         try:
                             time.sleep(3)
-                            r = requests.get("http://www.jjwxc.net/comment.php", params={
+                            r = requests.get("https://www.jjwxc.net/comment.php", params={
                                 "novelid": id,
                                 "chapterid": cid,
                                 "page": i,
@@ -43,8 +43,8 @@ def get_one_chapter_all(cid, cookies):
 
                                 # 以上三行可以自行注释或取消注释, 但一次最多取消注释一行
                                 # 默认全部注释即获取所有评论
-                            }, timeout=15, headers={
-                                "User-Agent": "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
+                            }, verify=False, timeout=15, headers={
+                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
                                 "Cookie": cookies
                             })
                             break
